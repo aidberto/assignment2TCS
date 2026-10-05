@@ -9,14 +9,24 @@ def add(state, symbols, move, write, nextstate):
     rules.append((state, symbols, move, write, nextstate))
 
 
-# INIT: read the opening '[' at cell 0, step right
+# read '[', step onto first word
 add("⎆", "[", "→", "", "list_start")
 
-# empty list: '[' immediately followed by ']'
+# empty list
 add("list_start", "]", "←", "", "rewind")
 
+# word follows. skip digits
+for digit in HEX:
+    add("list_start", digit, "→", "", "skip_word")
 
-# REWIND: walk left back to cell 0 (the '['), then accept
+for digit in HEX:
+    add("skip_word", digit, "→", "", "skip_word")
+
+# single word: already sorted
+add("skip_word", "]", "←", "", "rewind")
+
+
+# walk left to cell 0, accept
 for symbol in ALPHABET.replace("[", ""):
     add("rewind", symbol, "←", "", "rewind")
 
