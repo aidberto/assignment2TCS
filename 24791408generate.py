@@ -36,7 +36,7 @@ for m in MARKED:
     add("scanA", m, "→", "", "scanA")
 for i, d in enumerate(HEX):
     add("scanA", d, "→", MARKED[i], "carryA_" + d)
-add("scanA", ",", "⏹", "", "equal")          # all equal
+add("scanA", ",", "←", "", "to_restore")     # all equal
 
 # walk right over rest of A into B
 for d in HEX:
@@ -51,12 +51,25 @@ for d in HEX:
     for ei, e in enumerate(HEX):
         di = HEX.index(d)
         if di < ei:
-            add("carryB_" + d, e, "⏹", "", "less")
+            add("carryB_" + d, e, "←", "", "to_restore")
         elif di > ei:
-            add("carryB_" + d, e, "⏹", "", "greater")
+            add("carryB_" + d, e, "←", "", "to_restore")
         else:
             # equal: mark B[k], return to A for next digit
             add("carryB_" + d, e, "←", MARKED[ei], "to_A0")
+
+
+# go to '[' turn marks into hex 
+for s in ALPHABET.replace("[", ""):
+    add("to_restore", s, "←", "", "to_restore")
+add("to_restore", "[", "→", "", "restore")
+
+for i, m in enumerate(MARKED):
+    add("restore", m, "→", HEX[i], "restore")
+for d in HEX:
+    add("restore", d, "→", "", "restore")
+add("restore", ",", "→", "", "restore")
+add("restore", "]", "⏹", "", "restored")
 
 
 # walk left to cell 0, accept
