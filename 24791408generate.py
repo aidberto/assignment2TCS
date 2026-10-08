@@ -36,7 +36,7 @@ for m in MARKED:
     add("scanA", m, "→", "", "scanA")
 for i, d in enumerate(HEX):
     add("scanA", d, "→", MARKED[i], "carryA_" + d)
-add("scanA", ",", "←", "", "to_restore")     # all equal
+add("scanA", ",", "←", "", "to_restore_adv")  # all equal: no swap
 
 # walk right over rest of A into B
 for d in HEX:
@@ -51,25 +51,37 @@ for d in HEX:
     for ei, e in enumerate(HEX):
         di = HEX.index(d)
         if di < ei:
-            add("carryB_" + d, e, "←", "", "to_restore")
+            add("carryB_" + d, e, "←", "", "to_restore_adv")
         elif di > ei:
-            add("carryB_" + d, e, "←", "", "to_restore")
+            add("carryB_" + d, e, "←", "", "to_restore_swap")
         else:
             # equal: mark B[k], return to A for next digit
             add("carryB_" + d, e, "←", MARKED[ei], "to_A0")
 
 
-# go to '[' turn marks into hex 
+# no swap: go to '[', sweep marks into hex, advance
 for s in ALPHABET.replace("[", ""):
-    add("to_restore", s, "←", "", "to_restore")
-add("to_restore", "[", "→", "", "restore")
+    add("to_restore_adv", s, "←", "", "to_restore_adv")
+add("to_restore_adv", "[", "→", "", "restore_adv")
 
 for i, m in enumerate(MARKED):
-    add("restore", m, "→", HEX[i], "restore")
+    add("restore_adv", m, "→", HEX[i], "restore_adv")
 for d in HEX:
-    add("restore", d, "→", "", "restore")
-add("restore", ",", "→", "", "restore")
-add("restore", "]", "⏹", "", "restored")
+    add("restore_adv", d, "→", "", "restore_adv")
+add("restore_adv", ",", "→", "", "restore_adv")
+add("restore_adv", "]", "⏹", "", "adv_todo")
+
+# swap: go to '[', sweep marks into hex, swap
+for s in ALPHABET.replace("[", ""):
+    add("to_restore_swap", s, "←", "", "to_restore_swap")
+add("to_restore_swap", "[", "→", "", "restore_swap")
+
+for i, m in enumerate(MARKED):
+    add("restore_swap", m, "→", HEX[i], "restore_swap")
+for d in HEX:
+    add("restore_swap", d, "→", "", "restore_swap")
+add("restore_swap", ",", "→", "", "restore_swap")
+add("restore_swap", "]", "⏹", "", "swap_todo")
 
 
 # walk left to cell 0, accept
