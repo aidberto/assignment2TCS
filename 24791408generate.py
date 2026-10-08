@@ -59,7 +59,7 @@ for a in HEX:
         if a_val < b_val:
             add("carryB_" + a, b, "←", "", "adv_toA_less")
         elif a_val > b_val:
-            add("carryB_" + a, b, "←", "", "to_restore_swap")
+            add("carryB_" + a, b, "←", "", "grt_toA")
         else:
             # equal
             # mark B[k]
@@ -79,7 +79,10 @@ for sym in HEX + MARKED:
 for sep in "[,;":
     add("ret_toA2", sep, "→", "", "scanA")
 
-# less: no swap, go to A start (cross B, stop before A)
+# less no swap
+# go to A start 
+# cross B 
+# stop before A
 for sym in HEX + MARKED:
     add("adv_toA_less", sym, "←", "", "adv_toA_less")
 add("adv_toA_less", ",", "←", "", "adv_toA_less2")
@@ -88,13 +91,16 @@ for sym in HEX + MARKED:
 for sep in "[,;":
     add("adv_toA_less2", sep, "→", "", "restore_adv")
 
-# exhaustion: all equal, go to A start
+# exhaustion 
+# all equal
+# go to A start
 for sym in HEX + MARKED:
     add("adv_toA_exh", sym, "←", "", "adv_toA_exh")
 for sep in "[,;":
     add("adv_toA_exh", sep, "→", "", "restore_adv")
 
-# restore marks in A and B in place, then advance
+# restore marks in A and B in place
+# advance
 for val, mark in enumerate(MARKED):
     add("restore_adv", mark, "→", HEX[val], "restore_adv")
 for digit in HEX:
@@ -115,34 +121,50 @@ for sym in HEX + MARKED:
 for sep in "[,;":
     add("to_next", sep, "→", "", "scanA")
 
-# swap
-# go to [
-# sweep marks into hex, swap
-for sym in ALPHABET.replace("[", ""):
-    add("to_restore_swap", sym, "←", "", "to_restore_swap")
-add("to_restore_swap", "[", "→", "", "restore_swap")
+# greater 
+# go to A start 
+# cross B stop before A
+for sym in HEX + MARKED:
+    add("grt_toA", sym, "←", "", "grt_toA")
+add("grt_toA", ",", "←", "", "grt_toA2")
+for sym in HEX + MARKED:
+    add("grt_toA2", sym, "←", "", "grt_toA2")
+for sep in "[,;":
+    add("grt_toA2", sep, "→", "", "restore_grt")
 
+# restore marks in A and B
+# then go back to A start to swap
 for val, mark in enumerate(MARKED):
-    add("restore_swap", mark, "→", HEX[val], "restore_swap")
+    add("restore_grt", mark, "→", HEX[val], "restore_grt")
 for digit in HEX:
-    add("restore_swap", digit, "→", "", "restore_swap")
-add("restore_swap", ",", "→", "", "restore_swap")
-add("restore_swap", "]", "←", "", "to_swap")
+    add("restore_grt", digit, "→", "", "restore_grt")
+add("restore_grt", ",", "→", "", "restore_grt2")
+for val, mark in enumerate(MARKED):
+    add("restore_grt2", mark, "→", HEX[val], "restore_grt2")
+for digit in HEX:
+    add("restore_grt2", digit, "→", "", "restore_grt2")
+for sep in ",];":
+    add("restore_grt2", sep, "←", "", "grt_back")
 
-# swap
-# go to [
+# back to A start 
+# cross B
+# stop before A
+for sym in HEX + MARKED:
+    add("grt_back", sym, "←", "", "grt_back")
+add("grt_back", ",", "←", "", "grt_back2")
+for sym in HEX + MARKED:
+    add("grt_back2", sym, "←", "", "grt_back2")
+for sep in "[,;":
+    add("grt_back2", sep, "→", "", "swap_scan")
+
 # swap A and B char by char
-for sym in ALPHABET.replace("[", ""):
-    add("to_swap", sym, "←", "", "to_swap")
-add("to_swap", "[", "→", "", "swap_scan")
-
 # mark first unmarked A digit
 # carry its value
 for mark in MARKED:
     add("swap_scan", mark, "→", "", "swap_scan")
 for val, a in enumerate(HEX):
     add("swap_scan", a, "→", MARKED[val], "swap_carryA_" + a)
-add("swap_scan", ",", "→", "", "to_unmark")   # all swapped
+add("swap_scan", ",", "←", "", "unmark_toA")   # all swapped
 
 # walk right
 # rest of A into B
@@ -161,16 +183,15 @@ for a in HEX:
     for b in HEX:
         add("swap_carryB_" + a, b, "←", MARKED[a_val], "swap_carryC_" + b)
 
-# carry
-# b left over B
-# cross , into A
+# carry b left over B
+# cross into A
 for b in HEX:
     for mark in MARKED:
         add("swap_carryC_" + b, mark, "←", "", "swap_carryC_" + b)
     add("swap_carryC_" + b, ",", "←", "", "swap_findA_" + b)
 
 # write twin(b) at A[k]
-# restart
+# return to A start
 for b in HEX:
     b_val = HEX.index(b)
     for digit in HEX:
@@ -178,17 +199,33 @@ for b in HEX:
     for mark in MARKED:
         add("swap_findA_" + b, mark, "←", MARKED[b_val], "to_swap")
 
-# go to [
+# return to A 
+# start for next swap digit
+for sym in HEX + MARKED:
+    add("to_swap", sym, "←", "", "to_swap")
+for sep in "[,;":
+    add("to_swap", sep, "→", "", "swap_scan")
+
+# all swapped
+# go to A start
 # turn twins into hex
-for sym in ALPHABET.replace("[", ""):
-    add("to_unmark", sym, "←", "", "to_unmark")
-add("to_unmark", "[", "→", "", "unmark")
+# advance
+for sym in HEX + MARKED:
+    add("unmark_toA", sym, "←", "", "unmark_toA")
+for sep in "[,;":
+    add("unmark_toA", sep, "→", "", "unmark")
 for val, mark in enumerate(MARKED):
     add("unmark", mark, "→", HEX[val], "unmark")
 for digit in HEX:
     add("unmark", digit, "→", "", "unmark")
-add("unmark", ",", "→", "", "unmark")
-add("unmark", "]", "⏹", "", "swap_done")
+add("unmark", ",", "→", "", "unmark2")
+for val, mark in enumerate(MARKED):
+    add("unmark2", mark, "→", HEX[val], "unmark2")
+for digit in HEX:
+    add("unmark2", digit, "→", "", "unmark2")
+add("unmark2", ",", "←", "", "to_next")   # next pair
+add("unmark2", "]", "⏹", "", "pass_end")  # end of pass
+add("unmark2", ";", "⏹", "", "pass_end")
 
 
 # walk left to cell 0
