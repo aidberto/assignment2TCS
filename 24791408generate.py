@@ -110,9 +110,9 @@ for val, mark in enumerate(MARKED):
     add("restore_adv2", mark, "→", HEX[val], "restore_adv2")
 for digit in HEX:
     add("restore_adv2", digit, "→", "", "restore_adv2")
-add("restore_adv2", ",", "←", "", "to_next")   # next pair
-add("restore_adv2", "]", "⏹", "", "pass_end")  # end of pass
-add("restore_adv2", ";", "⏹", "", "pass_end")
+add("restore_adv2", ",", "←", "", "to_next") # next pair
+add("restore_adv2", "]", "←", "", "pass_end") # end of pass
+add("restore_adv2", ";", "←", "", "pass_end")
 
 # position at B start
 # compare with next word
@@ -223,10 +223,33 @@ for val, mark in enumerate(MARKED):
     add("unmark2", mark, "→", HEX[val], "unmark2")
 for digit in HEX:
     add("unmark2", digit, "→", "", "unmark2")
-add("unmark2", ",", "←", "", "to_next")   # next pair
-add("unmark2", "]", "⏹", "", "pass_end")  # end of pass
-add("unmark2", ";", "⏹", "", "pass_end")
+add("unmark2", ",", "←", "", "to_next") # next pair
+add("unmark2", "]", "←", "", "pass_end") # end of pass
+add("unmark2", ";", "←", "", "pass_end")
 
+
+# end of pass:
+# head sits on terminator after the last word B
+# walk left across B to separator before
+for digit in HEX:
+    add("pass_end", digit, "←", "", "pass_end")
+add("pass_end", "[", "→", "", "cleanup") # B is first word ... nothing to sort
+add("pass_end", ",", "←", ";", "check_prev") # mark B sorted, look one word left
+
+# is the word left of the new boundary the only one remaining?
+for digit in HEX:
+    add("check_prev", digit, "←", "", "check_prev")
+add("check_prev", "[", "→", "", "cleanup") # 1 word: fully sorted
+add("check_prev", ",", "←", "", "to_A0") # >=2: run another pass
+add("check_prev", ";", "←", "", "to_A0")
+
+# sorted walk right 
+# boundaries to commas
+# rewind
+for sym in HEX + ",":
+    add("cleanup", sym, "→", "", "cleanup")
+add("cleanup", ";", "→", ",", "cleanup")
+add("cleanup", "]", "←", "", "rewind")
 
 # walk left to cell 0
 # accept
