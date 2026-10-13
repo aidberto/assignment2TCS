@@ -1,11 +1,18 @@
 import sys
+from collections import namedtuple
 
 BLANK = "·"
+HALTING = {"✔", "❗"}  
 
-def load(path):
+Result = namedtuple("Result", "status state tape head writes steps")
+
+
+def parse(lines):
+    #rule table
     rules = {}
+    problems = []
 
-    for line in open(path, encoding="utf-8"):
+    for lineno, line in enumerate(lines, start=1):
         line = line.rstrip("\n")
 
         if line == "":
@@ -14,9 +21,19 @@ def load(path):
         state, symbols, move, write, nextstate = line.split("\t")
 
         for symbol in symbols.split(" "):
+            if (state, symbol) in rules:
+                problems.append(f"line {lineno}: duplicate rule for ({state}, {symbol})")
             rules[(state, symbol)] = (move, write, nextstate)
 
+    if problems:
+        raise ValueError("invalid machine file:\n  " + "\n  ".join(problems))
+
     return rules
+
+
+def load(path):
+    with open(path, encoding="utf-8") as f:
+        return parse(f)
 
 def run(rules, tape_str):
     tape = dict(enumerate(tape_str))
