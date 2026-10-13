@@ -40,7 +40,7 @@ def parse(lines):
 
 
 def render(tape):
-    #tape dict back to string, trailing blanks dropped
+    #tape dict back to str
     if not tape:
         return ""
     end = max(tape) + 1
@@ -51,37 +51,49 @@ def load(path):
     with open(path, encoding="utf-8") as f:
         return parse(f)
 
-def run(rules, tape_str):
+def run(rules, tape_str, max_steps=10 ** 7):
     tape = dict(enumerate(tape_str))
-    pos = 0
+    head = 0
     state = "⎆"
+    writes = 0
+    steps = 0
 
-    for _ in range(10 ** 6):
-        if state == "✔" or state == "❗":
-            break
+    while steps < max_steps:
+        if state in HALTING:
+            status = "accept" if state == "✔" else "error"
+            return Result(status, state, render(tape), head, writes, steps)
 
-        symbol = tape.get(pos, BLANK)
-        if (state, symbol) not in rules:
-            break
+        symbol = tape.get(head, BLANK)
+        action = rules.get((state, symbol))
+        if action is None:
+            return Result("stuck", state, render(tape), head, writes, steps)
 
-        move, write, nextstate = rules[(state, symbol)]
+        move, write, nextstate = action
+        steps += 1
         if write != "":
-            tape[pos] = write
-
+            tape[head] = write
+            writes += 1
         state = nextstate
+
         if move == "⏹":
-            break
+            status = "accept" if state == "✔" else ("error" if state == "❗" else "halt")
+            return Result(status, state, render(tape), head, writes, steps)
 
-        pos += 1 if move == "→" else -1
-        if pos < 0:
-            state = "❗"
+        head += 1 if move == "→" else -1
+        if head < 0:
+            return Result("error", "❗", render(tape), 0, writes, steps)
 
-    end = max(tape) + 1 if tape else 0
-    result = "".join(tape.get(i, BLANK) for i in range(end)).rstrip(BLANK)
-    return state, result
+    return Result("timeout", state, render(tape), head, writes, steps)
 
 if __name__ == "__main__":
-    rules = load(sys.argv[1])
+    path = sys.argv[1]
     tape_str = sys.argv[2] if len(sys.argv) > 2 else ""
-    state, result = run(rules, tape_str)
-    print(state, "[" + result + "]")
+    max_steps = int(sys.argv[3]) if len(sys.argv) > 3 else 10 ** 7
+
+    r = run(load(path), tape_str, max_steps)
+    print(f"status: {r.status}")
+    print(f"state:  {r.state}")
+    print(f"head:   {r.head}")
+    print(f"writes: {r.writes}")
+    print(f"steps:  {r.steps}")
+    print(f"tape:   {r.tape}")
