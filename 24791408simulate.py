@@ -11,6 +11,8 @@ def parse(lines):
     #rule table
     rules = {}
     problems = []
+    halt_targets = set()
+    continue_targets = set()
 
     for lineno, line in enumerate(lines, start=1):
         line = line.rstrip("\n")
@@ -25,10 +27,24 @@ def parse(lines):
                 problems.append(f"line {lineno}: duplicate rule for ({state}, {symbol})")
             rules[(state, symbol)] = (move, write, nextstate)
 
+        (halt_targets if move == "⏹" else continue_targets).add(nextstate)
+
+    clash = halt_targets & continue_targets
+    if clash:
+        problems.append("states reached as both halting and continuing: " + ", ".join(sorted(clash)))
+
     if problems:
         raise ValueError("invalid machine file:\n  " + "\n  ".join(problems))
 
     return rules
+
+
+def render(tape):
+    #tape dict back to string, trailing blanks dropped
+    if not tape:
+        return ""
+    end = max(tape) + 1
+    return "".join(tape.get(i, BLANK) for i in range(end)).rstrip(BLANK)
 
 
 def load(path):
