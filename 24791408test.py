@@ -29,7 +29,7 @@ def check(words, show=True):
 print("Basic tests:")
 check([]) #empty
 check([word("1")]) #1 word
-check([word("1"), word("2")])i#sorted
+check([word("1"), word("2")]) #sorted
 check([word("2"), word("1")]) #one swap
 check([word("5"), word("5")]) # two equal
 
@@ -44,5 +44,20 @@ check([word("7"), word("7"), word("7")]) #all same
 check([word("B"), word("A"), word("B"), word("A")]) #dups mixed in
 
 print("Big test:")
-big_list = [word(digit) for digit in "FEDCBA987654321"] 
+big_list = [word(digit) for digit in "FEDCBA987654321"]
 check(big_list)
+
+
+#random lists
+def random_word():
+    #one random hex word
+    return "".join(random.choice(HEX) for _ in range(16))
+
+
+print("Random tests:")
+random.seed(0)
+for _ in range(500):
+    how_many = random.randint(0, 6)
+    words = [random_word() for _ in range(how_many)]
+    check(words, show=False)
+print("  ok: 500 random lists all sorted correctly")
