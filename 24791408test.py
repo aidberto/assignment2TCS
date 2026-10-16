@@ -24,3 +24,25 @@ def check(words, show=True):
 
     if show:
         print("  ok:", tape_in, "->", result.tape)
+
+
+print("Basic tests:")
+check([]) #empty
+check([word("1")]) #1 word
+check([word("1"), word("2")])i#sorted
+check([word("2"), word("1")]) #one swap
+check([word("5"), word("5")]) # two equal
+
+print("Ordering tests:")
+check([word("A"), word("9")]) #letters after digits
+check([word("F"), word("0")]) #descending
+check([word("1A"), word("1B"), word("19")]) #different last digit
+check([word("3"), word("1"), word("2")]) #three out of order
+
+print("Duplicate tests:")
+check([word("7"), word("7"), word("7")]) #all same
+check([word("B"), word("A"), word("B"), word("A")]) #dups mixed in
+
+print("Big test:")
+big_list = [word(digit) for digit in "FEDCBA987654321"] 
+check(big_list)
