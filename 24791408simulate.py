@@ -16,12 +16,10 @@ def parse(lines):
 
     for lineno, line in enumerate(lines, start=1):
         line = line.rstrip("\n")
-
         if line == "":
             continue
 
         state, symbols, move, write, nextstate = line.split("\t")
-
         for symbol in symbols.split(" "):
             if (state, symbol) in rules:
                 problems.append(f"line {lineno}: duplicate rule for ({state}, {symbol})")
@@ -35,9 +33,7 @@ def parse(lines):
 
     if problems:
         raise ValueError("invalid machine file:\n  " + "\n  ".join(problems))
-
     return rules
-
 
 def render(tape):
     #tape dict back to str
@@ -45,7 +41,6 @@ def render(tape):
         return ""
     end = max(tape) + 1
     return "".join(tape.get(i, BLANK) for i in range(end)).rstrip(BLANK)
-
 
 def load(path):
     with open(path, encoding="utf-8") as f:
