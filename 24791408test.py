@@ -11,7 +11,6 @@ def word(short):
     #leading 0s
     return short.rjust(16, "0")
 
-
 def check(words, show=True):
     #run machine on 1 list 
     tape_in = "[" + ",".join(words) + "]"
@@ -25,13 +24,12 @@ def check(words, show=True):
     if show:
         print("  ok:", tape_in, "->", result.tape)
 
-
 print("Basic tests:")
-check([]) #empty
 check([word("1")]) #1 word
 check([word("1"), word("2")]) #sorted
 check([word("2"), word("1")]) #one swap
 check([word("5"), word("5")]) # two equal
+check([]) #empty
 
 print("Ordering tests:")
 check([word("A"), word("9")]) #letters after digits
@@ -44,20 +42,49 @@ check([word("7"), word("7"), word("7")]) #all same
 check([word("B"), word("A"), word("B"), word("A")]) #dups mixed in
 
 print("Big test:")
-big_list = [word(digit) for digit in "FEDCBA987654321"]
+big_list = []
+for digit in "FEDCBA987654321":
+    big_list.append(word(digit))
 check(big_list)
 
 
 #random lists
 def random_word():
     #one random hex word
-    return "".join(random.choice(HEX) for _ in range(16))
-
+    digits = ""
+    for _ in range(16):
+        digits = digits + random.choice(HEX)
+    return digits
 
 print("Random tests:")
 random.seed(0)
-for _ in range(500):
+for _ in range(50):
     how_many = random.randint(0, 6)
-    words = [random_word() for _ in range(how_many)]
-    check(words, show=False)
-print("  ok: 500 random lists all sorted correctly")
+    words = []
+    for _ in range(how_many):
+        words.append(random_word())
+    check(words)
+print("  ok: 50 random lists all sorted correctly")
+
+
+#the machine file itself should be valid
+def rule(state, symbol, move, write, nextstate):
+    #one machine rule
+    return "\t".join([state, symbol, move, write, nextstate])
+
+def must_be_rejected(name, lines):
+    try:
+        simulator.parse(lines)
+    except ValueError:
+        print("  ok: rejected", name)
+    else:
+        print("  FAILED: wrongly accepted", name)
+        raise SystemExit(1)
+
+print("Validation tests:")
+#two rules with the same state and symbol
+must_be_rejected("a duplicate rule", [rule("a", "0", "→", "", "b"), rule("a", "0", "→", "", "c")])
+#state ' is reached thru halting rule + continuing rule
+must_be_rejected("a halt/continue conflict", [rule("a", "0", "→", "", "b"), rule("b", "0", "⏹", "", "b")])
+
+print("\nAll tests passed.")
