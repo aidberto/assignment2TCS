@@ -22,7 +22,7 @@ def check(words, show=True):
     assert result.head == 0, f"head ended at cell {result.head}, not 0"
 
     if show:
-        print("PASS: ", tape_in, "->", result.tape, "\n")
+        print("PASS: ", tape_in, "->", result.tape, " writes:", result.writes, "\n")
 
 print("\nBasic tests:")
 check([word("1")]) #1 word
