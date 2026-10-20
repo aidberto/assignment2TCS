@@ -1,8 +1,8 @@
 import random
 import importlib
 
-simulator = importlib.import_module("simulate24791408")
-machine = simulator.load("assignment224791408.tsv")
+simulator = importlib.import_module("24791408simulate")
+machine = simulator.load("24791408assignment2.tsv")
 
 HEX = "0123456789ABCDEF"
 
@@ -24,24 +24,24 @@ def check(words, show=True):
     if show:
         print("  ok:", tape_in, "->", result.tape)
 
-print("Basic tests:")
+print("\nBasic tests:")
 check([word("1")]) #1 word
 check([word("1"), word("2")]) #sorted
 check([word("2"), word("1")]) #one swap
 check([word("5"), word("5")]) # two equal
 check([]) #empty
 
-print("Ordering tests:")
+print("\nOrdering tests:")
 check([word("A"), word("9")]) #letters after digits
 check([word("F"), word("0")]) #descending
 check([word("1A"), word("1B"), word("19")]) #different last digit
 check([word("3"), word("1"), word("2")]) #three out of order
 
-print("Duplicate tests:")
+print("\nDuplicate tests:")
 check([word("7"), word("7"), word("7")]) #all same
 check([word("B"), word("A"), word("B"), word("A")]) #dups mixed in
 
-print("Big test:")
+print("\nBig test:")
 big_list = []
 for digit in "FEDCBA987654321":
     big_list.append(word(digit))
@@ -56,7 +56,7 @@ def random_word():
         digits = digits + random.choice(HEX)
     return digits
 
-print("Random tests:")
+print("\nRandom tests:")
 random.seed(0)
 for _ in range(50):
     how_many = random.randint(0, 6)
