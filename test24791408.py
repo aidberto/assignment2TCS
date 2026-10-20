@@ -1,8 +1,8 @@
 import random
 import importlib
 
-simulator = importlib.import_module("24791408simulate")
-machine = simulator.load("24791408assignment2.tsv")
+simulator = importlib.import_module("simulate24791408")
+machine = simulator.load("assignment2_24791408.tsv")
 
 HEX = "0123456789ABCDEF"
 
@@ -22,7 +22,7 @@ def check(words, show=True):
     assert result.head == 0, f"head ended at cell {result.head}, not 0"
 
     if show:
-        print("  ok:", tape_in, "->", result.tape)
+        print("PASS: ", tape_in, "->", result.tape, "\n")
 
 print("\nBasic tests:")
 check([word("1")]) #1 word
@@ -47,6 +47,14 @@ for digit in "FEDCBA987654321":
     big_list.append(word(digit))
 check(big_list)
 
+print("\nMid-word difference tests:")
+
+for k in range(16):
+    low = HEX[:k] + "0" + HEX[k + 1:]
+    high = HEX[:k] + "F" + HEX[k + 1:]
+    check([high, low])
+    check([low, high])
+print("PASS: a difference at every position 0-15 is ordered correctly")
 
 #random lists
 def random_word():
@@ -64,7 +72,7 @@ for _ in range(50):
     for _ in range(how_many):
         words.append(random_word())
     check(words)
-print("  ok: 50 random lists all sorted correctly")
+print("PASS: 50 random lists all sorted correctly")
 
 
 #the machine file itself should be valid
@@ -76,9 +84,9 @@ def must_be_rejected(name, lines):
     try:
         simulator.parse(lines)
     except ValueError:
-        print("  ok: rejected", name)
+        print("PASS: rejected", name)
     else:
-        print("  FAILED: wrongly accepted", name)
+        print("FAILED: wrongly accepted", name)
         raise SystemExit(1)
 
 print("Validation tests:")

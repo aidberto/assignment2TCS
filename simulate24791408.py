@@ -2,7 +2,7 @@ import sys
 from collections import namedtuple
 
 BLANK = "·"
-HALTING = {"✔", "❗"}  
+HALTING = {"✔", "❗"} 
 
 Result = namedtuple("Result", "status state tape head writes steps")
 
