@@ -1,8 +1,8 @@
 import random
 import importlib
 
-simulator = importlib.import_module("24791408simulate")
-machine = simulator.load("24791408assignment2.tsv")
+simulator = importlib.import_module("simulate24791408")
+machine = simulator.load("assignment224791408.tsv")
 
 HEX = "0123456789ABCDEF"
 
