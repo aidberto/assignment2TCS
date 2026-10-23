@@ -13,6 +13,7 @@ def parse(lines):
     problems = []
     halt_targets = set()
     continue_targets = set()
+    curr_states = set()
 
     for lineno, line in enumerate(lines, start=1):
         line = line.rstrip("\n")
@@ -20,6 +21,7 @@ def parse(lines):
             continue
 
         state, symbols, move, write, nextstate = line.split("\t")
+        curr_states.add(state)
         for symbol in symbols.split(" "):
             if (state, symbol) in rules:
                 problems.append(f"line {lineno}: duplicate rule for ({state}, {symbol})")
@@ -30,6 +32,10 @@ def parse(lines):
     clash = halt_targets & continue_targets
     if clash:
         problems.append("states reached as both halting and continuing: " + ", ".join(sorted(clash)))
+
+    halting_in_curr = halt_targets & curr_states
+    if halting_in_curr:
+        problems.append("halting states used as a current state: " + ", ".join(sorted(halting_in_curr)))
 
     if problems:
         raise ValueError("invalid machine file:\n  " + "\n  ".join(problems))
