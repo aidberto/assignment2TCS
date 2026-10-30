@@ -56,6 +56,13 @@ for k in range(16):
     check([low, high])
 print("PASS: a difference at every position 0-15 is ordered correctly")
 
+print("\nLong list test:")
+long_list = []
+for i in range(30, 0, -1):
+    long_list.append(word(format(i, "X")))
+check(long_list, show=False)
+print("PASS: 30 words sorted correctly")
+
 #random lists
 def random_word():
     #one random hex word
