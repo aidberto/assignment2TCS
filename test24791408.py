@@ -92,8 +92,8 @@ def must_be_rejected(name, lines):
 print("Validation tests:")
 #two rules with the same state and symbol
 must_be_rejected("a duplicate rule", [rule("a", "0", "→", "", "b"), rule("a", "0", "→", "", "c")])
-#state ' is reached thru halting rule + continuing rule
-must_be_rejected("a halt/continue conflict", [rule("a", "0", "→", "", "b"), rule("b", "0", "⏹", "", "b")])
+#state b is reached thru halting rule + continuing rule
+must_be_rejected("a halt/continue conflict", [rule("a", "0", "→", "", "b"), rule("c", "0", "⏹", "", "b")])
 #halting state 'b' then used as curr state
 must_be_rejected("a halting state as current state", [rule("a", "0", "⏹", "", "b"), rule("b", "0", "→", "", "a")])
 
