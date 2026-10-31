@@ -260,5 +260,5 @@ add("rewind", "[", "⏹", "", "✔")
 
 
 if __name__ == "__main__":
-    for rule in rules:
-        print("\t".join(rule))
+    with open("machine24791408.tsv", "w", encoding="utf-8") as f:
+        f.write("\n".join("\t".join(rule) for rule in rules))

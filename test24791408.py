@@ -2,7 +2,7 @@ import random
 import importlib
 
 simulator = importlib.import_module("simulate24791408")
-machine = simulator.load("assignment2_24791408.tsv")
+machine = simulator.load("machine24791408.tsv")
 
 HEX = "0123456789ABCDEF"
 
@@ -60,7 +60,7 @@ print("\nLong list test:")
 long_list = []
 for i in range(30, 0, -1):
     long_list.append(word(format(i, "X")))
-check(long_list, show=False)
+check(long_list, show=True)
 print("PASS: 30 words sorted correctly")
 
 #random lists
